@@ -1,7 +1,15 @@
 import "./index.css";
+const regeneratorRuntime = require("regenerator-runtime");
 
-async function getCars() {
-    let url = "/cars.json?"
+async function getCars(duration=null, distance=null) {
+    var params =''
+    if (duration != null) {
+        params+= "duration="+duration;
+    }
+    if (distance != null) {
+        params+= "&distance="+distance;
+    }
+    let url = params !== '' ? "/cars.json?"+params : "/cars.json?"
     try {
         let res = await fetch(url);
         return await res.json();
@@ -10,14 +18,14 @@ async function getCars() {
     }
 }
 
-async function renderCars() {
-    let cars = await getCars();
+async function renderCars(duration=null, distance=null) {
+    let cars = await getCars(duration, distance);
     let html = '';
     cars.forEach(car => {
         let htmlSegment = `
                             <div class="column">
                             <div class="car">
-                            <img  alt="" src="${car.picturePath}" >
+                            <img src="${car.picturePath}" >
                             <h2 style="text-align: center">${car.brand} ${car.model}</h2>
                             <h3 style="text-align: center">Price per day : <b>${car.pricePerDay}</b></h3>
                             <h3 style="text-align: center">Price per km : <b>${car.pricePerKm}</b></h3>
@@ -31,3 +39,12 @@ async function renderCars() {
     container.innerHTML = html;
 }
 renderCars();
+
+$(document).ready(function(){
+    $("form").on("submit", function(event){
+        event.preventDefault();
+        var duration = document.getElementById('duration').value
+        var distance = document.getElementById('distance').value
+        renderCars(duration,distance);
+    });
+});
